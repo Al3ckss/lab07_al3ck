@@ -1,41 +1,47 @@
 package it.unibo.inner.api;
 
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class IterableWithPolicyImpl<T> implements IterableWithPolicy<T> {
 
-    T[] elements;
-    
+    private final T[] elements;
+    private Predicate<T> filter;
 
     public IterableWithPolicyImpl(T[] elements) {
-        this.elements = elements;
+        this.elements = Arrays.copyOf(elements, elements.length);
+        //TODO
+        
     }
 
+    public IterableWithPolicyImpl(T[] elements, Predicate<T> filter){
+        this.elements = elements;
+        this.filter = filter;
+    }
 
     class IteratorImpl implements Iterator<T>{
         
-        int tmp = 0;
+        int index = 0;
     
         @Override
         public boolean hasNext() {
-            if(elements[tmp+1] == new IndexOutOfBoundsException()){
-                return false;
-            }
-            else{
-                return true;
-            }
+            return index < elements.length;
         }
 
         @Override
         public T next() {
-            return elements[tmp++]; 
+            if (hasNext()) {
+                return elements[index++]; 
+            }
+            throw new NoSuchElementException();
         }
         
     }
 
     @Override
     public void setIterationPolicy(Predicate filter) {
-        //TODO
+        this.filter = filter;
     }
 
     
