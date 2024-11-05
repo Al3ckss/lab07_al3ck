@@ -10,9 +10,8 @@ public class IterableWithPolicyImpl<T> implements IterableWithPolicy<T> {
     private Predicate<T> filter;
 
     public IterableWithPolicyImpl(T[] elements) {
-        this.elements = Arrays.copyOf(elements, elements.length);
-        //TODO
-        
+        //this.elements = Arrays.copyOf(elements, elements.length); ORIGINALE
+        this(elements, t -> true);
     }
 
     public IterableWithPolicyImpl(T[] elements, Predicate<T> filter){
@@ -32,7 +31,12 @@ public class IterableWithPolicyImpl<T> implements IterableWithPolicy<T> {
         @Override
         public T next() {
             if (hasNext()) {
-                return elements[index++]; 
+                while (index < elements.length) {
+                    if(filter.test(elements[index])){
+                        return elements[index++];
+                    }
+                }
+                return elements[index]; 
             }
             throw new NoSuchElementException();
         }
