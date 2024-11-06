@@ -1,6 +1,6 @@
 package it.unibo.inner.api;
 
-import java.util.Arrays;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -11,7 +11,11 @@ public class IterableWithPolicyImpl<T> implements IterableWithPolicy<T> {
 
     public IterableWithPolicyImpl(T[] elements) {
         //this.elements = Arrays.copyOf(elements, elements.length); ORIGINALE
-        this(elements, t -> true);
+        this(elements, new Predicate<T>() {
+            public boolean test(T element){
+                return true;
+            }
+        });
     }
 
     public IterableWithPolicyImpl(T[] elements, Predicate<T> filter){
@@ -23,20 +27,17 @@ public class IterableWithPolicyImpl<T> implements IterableWithPolicy<T> {
         
         int index = 0;
     
-        @Override
         public boolean hasNext() {
+            while (index < elements.length && !filter.test(elements[index])) {
+                index++;
+            }
             return index < elements.length;
         }
-
+    
         @Override
         public T next() {
             if (hasNext()) {
-                while (index < elements.length) {
-                    if(filter.test(elements[index])){
-                        return elements[index++];
-                    }
-                }
-                return elements[index]; 
+                return elements[index++];
             }
             throw new NoSuchElementException();
         }
@@ -44,13 +45,13 @@ public class IterableWithPolicyImpl<T> implements IterableWithPolicy<T> {
     }
 
     @Override
-    public void setIterationPolicy(Predicate filter) {
+    public void setIterationPolicy(Predicate<T> filter) {
         this.filter = filter;
     }
 
     
     @Override
-    public Iterator iterator() {
+    public Iterator<T> iterator() {
         IteratorImpl tmpObject = new IteratorImpl();
         return tmpObject;
     }
